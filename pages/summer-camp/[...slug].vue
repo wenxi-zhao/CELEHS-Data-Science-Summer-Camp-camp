@@ -30,17 +30,17 @@
                     <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between">
                       <h1 class="text-3xl sm:text-4xl font-black tracking-tight">{{ doc.title }}</h1>
                     </div>
-                    <p class="mt-6 leading-8">{{ doc.description?doc.description:"" }}</p>
+                    <p class="mt-6 leading-8">{{ doc.description ? doc.description : "" }}</p>
                   </div>
                   <div class="mt-8 pb-24 dark:prose-pre:!bg-gray-800/60 prose prose-primary dark:prose-invert max-w-none">
                     <ContentRenderer :value="doc" class="prose dark:prose-invert max-w-none"/>
                   </div>
                 </article>
 
-                <div class="flex border-gray-200 dark:border-gray-800 w-full border-t border-dashed my-8">
+                <div v-if="!isSpecialPage" class="flex border-gray-200 dark:border-gray-800 w-full border-t border-dashed my-8">
                 </div>
                 
-                <div class="toolbar">
+                <div v-if="!isSpecialPage" class="toolbar">
                   <div class="share-box" style="display:;">
                     分享到：
                     <ul class="share-list">
@@ -65,11 +65,14 @@
                   </div>
                 </div>
                 
-                <CommentArea class="w-auto" />
+                <CommentArea v-if="!isSpecialPage" class="w-auto" />
               </div>
               <div class="lg:col-span-2 order-first lg:order-last">
                 <!-- 这里开始是右侧的文章导航 -->
-                <BodyNav :toc="doc.body.toc" />
+                <BodyNav 
+                  :toc="doc.body.toc" 
+                  :maxDepth="isWeekPage ? 2 : undefined" 
+                />
               </div>
 
             </div>
@@ -81,6 +84,15 @@
 </template>
 
 <script setup>
+import { useRoute } from 'vue-router'
+
+const route = useRoute()
+const specialPages = ['/summer-camp', '/summer-camp/car_building', '/summer-camp/1week_1', '/summer-camp/2week_2', '/summer-camp/1speakers', '/summer-camp/2resources', '/summer-camp/1cursor']
+const isSpecialPage = specialPages.includes(route.path)
+
+// 修改判断逻辑
+const isWeekPage = route.path.includes('week_')
+
 const catsQuery = [
   {
     title: 'Start',

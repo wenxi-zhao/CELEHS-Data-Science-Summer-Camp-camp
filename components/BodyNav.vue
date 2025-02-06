@@ -10,7 +10,7 @@
       </button>
       <!--  -->
       <ul class="space-y-1 hidden lg:block">
-        <li v-for="link in toc.links" :key="link.id">
+        <li v-for="link in filteredToc" :key="link.id">
           <a :href="`#${link.id}`" class="text-sm font-medium">{{ link.text }}</a>
           <ul v-if="link.children" class="ml-4 mt-2 space-y-2">
             <li v-for="childLink in link.children" :key="childLink.id" class="space-y-1 hidden lg:block">
@@ -49,8 +49,40 @@
 </template>
 
 <script setup>
-defineProps({
+import { computed } from 'vue'
+
+const props = defineProps({
   toc: {
+    type: Object,
+    required: false,
   },
+  maxDepth: {
+    type: Number,
+    required: false,
+  },
+})
+
+// 计算属性：根据 maxDepth 过滤目录
+const filteredToc = computed(() => {
+  if (!props.toc || !props.toc.links) return []
+  
+  if (!props.maxDepth) return props.toc.links
+  
+  return props.toc.links.map(link => {
+    // 创建链接的副本
+    const newLink = { ...link }
+    
+    // 如果有子项且需要过滤
+    if (newLink.children) {
+      // 只保留深度符合要求的子项
+      newLink.children = newLink.children.filter(child => child.depth <= props.maxDepth)
+      // 如果过滤后没有子项，删除 children 属性
+      if (newLink.children.length === 0) {
+        delete newLink.children
+      }
+    }
+    
+    return newLink
+  }).filter(link => link.depth <= props.maxDepth)
 })
 </script>
