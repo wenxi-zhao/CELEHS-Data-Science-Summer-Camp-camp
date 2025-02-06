@@ -1,44 +1,36 @@
-name: Deploy to GitHub Pages
+name: Deploy to GitHub Pages 
 
 on:
   push:
     branches:
-      - main  # 设置要部署的源码分支
+      - main  # 监听main分支的push事件
 
 jobs:
   deploy:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-latest  # 运行在最新的Ubuntu虚拟机上
+
     steps:
-      - uses: actions/checkout@v3
-      
-      - name: Setup Node
-        uses: actions/setup-node@v3
-        with:
-          node-version: '18'
-          
-      - name: Get yarn cache directory path
-        id: yarn-cache-dir-path
-        run: echo "::set-output name=dir::$(yarn cache dir)"
+    - name: Checkout
+      uses: actions/checkout@v4  # 检出代码
 
-      - name: Cache dependencies
-        uses: actions/cache@v2
-        with:
-          path: ${{ steps.yarn-cache-dir-path.outputs.dir }}
-          key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-yarn-
+    - name: Setup Node
+      uses: actions/setup-node@v4
+      with:
+        node-version: '22.10.0'  # 使用Node.js版本
 
-      - name: Install dependencies
-        run: npm install
+    - name: Install dependencies
+      run: npm install  # 安装依赖
 
-      - name: Generate
-        run: npm run generate
+    - name: Set execute permission for nuxt
+      run: chmod +x ./node_modules/.bin/nuxt  # 确保nuxt命令有执行权限
 
-      - name: Copy CNAME
-        run: cp CNAME ./dist/CNAME  # 确保 CNAME 文件被复制到 dist 目录
+    - name: Build with Nuxt.js
+      env:
+        NUXT_APP_BASE_URL: '/learn-from-zero/'
+      run: ./node_modules/.bin/nuxt prepare  # 直接使用nuxt命令
 
-      - name: Deploy
-        uses: peaceiris/actions-gh-pages@v3
-        with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./dist
+    - name: Deploy to GitHub Pages
+      uses: peaceiris/actions-gh-pages@v3
+      with:
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+        publish_dir: ./dist
