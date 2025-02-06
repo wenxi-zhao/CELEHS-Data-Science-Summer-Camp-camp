@@ -84,7 +84,7 @@
 import { useRoute } from 'vue-router'
 
 const route = useRoute()
-const specialPages = ['/summer-camp/1week_1', '/summer-camp/2week_2']
+const specialPages = ['/summer-camp', '/summer-camp/car_building', '/summer-camp/1week_1', '/summer-camp/2week_2', '/summer-camp/1speakers', '/summer-camp/2resources', '/summer-camp/1cursor']
 const isSpecialPage = specialPages.includes(route.path)
 
 const catsQuery = [
